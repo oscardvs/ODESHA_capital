@@ -1,0 +1,116 @@
+# Quant ML Options Trading System Configuration
+
+# Data Sources
+data_sources:
+  ibkr:
+    enabled: true
+    client_id: 1
+    host: "127.0.0.1"
+    port: 7497  # TWS port (7496 for Gateway)
+    read_only: true  # Set to false for live trading
+  
+  yfinance:
+    enabled: true
+    cache_dir: "../data/cache/yfinance"
+  
+  alternative:
+    sentiment_enabled: false
+    social_enabled: false
+
+# Storage
+storage:
+  type: "sqlite"  # Options: sqlite, postgresql, mongodb
+  sqlite:
+    db_path: "../data/market_data.db"
+  parquet:
+    dir_path: "../data/parquet"
+
+# Feature Engineering
+features:
+  volatility:
+    lookback_periods: [10, 20, 60, 120]
+    iv_percentile_days: 252
+  
+  technicals:
+    enabled: true
+    indicators: ["rsi", "macd", "bollinger", "atr"]
+  
+  sentiment:
+    enabled: false
+    model: "finbert"
+
+# Machine Learning
+ml:
+  models:
+    direction_classifier:
+      type: "xgboost"
+      target: "direction"
+      features: ["iv_rank", "iv_hv_spread", "rsi", "days_to_earnings"]
+      train_test_split: 0.8
+      cv_folds: 5
+    
+    iv_predictor:
+      type: "lightgbm"
+      target: "iv_change"
+      features: ["iv_rank", "iv_percentile", "hv_10", "hv_20", "days_to_earnings"]
+      train_test_split: 0.8
+      cv_folds: 5
+  
+  training:
+    schedule: "weekly"  # Options: daily, weekly, monthly
+    save_dir: "../models/saved"
+
+# Strategy Engine
+strategies:
+  filters:
+    min_volume: 100
+    min_open_interest: 500
+    max_bid_ask_spread: 0.10  # As percentage of mid price
+  
+  preferences:
+    default_dte_range: [30, 60]  # Days to expiration range
+    default_delta_range: [0.3, 0.7]  # For directional trades
+    iv_rank_threshold: 0.5  # For volatility-based strategies
+
+# Backtesting
+backtest:
+  start_date: "2023-01-01"
+  end_date: "2023-12-31"
+  initial_capital: 100000
+  commission_per_contract: 0.65
+  slippage: 0.01  # 1% of bid-ask spread
+
+# Execution
+execution:
+  paper_trading: true  # Set to false for live trading
+  max_position_size: 0.05  # As percentage of portfolio
+  max_trades_per_day: 5
+  trading_hours:
+    start: "09:30"  # Eastern Time
+    end: "16:00"    # Eastern Time
+
+# Dashboard
+dashboard:
+  type: "streamlit"  # Options: streamlit, fastapi_react
+  port: 8501
+  refresh_interval: 60  # In seconds
+
+# Logging
+logging:
+  level: "INFO"  # Options: DEBUG, INFO, WARNING, ERROR
+  log_dir: "../logs"
+  trade_log: true
+  prediction_log: true
+
+# Alerts
+alerts:
+  email:
+    enabled: false
+    smtp_server: "smtp.example.com"
+    port: 587
+    sender: "alerts@example.com"
+    recipients: ["user@example.com"]
+  
+  slack:
+    enabled: false
+    webhook_url: ""

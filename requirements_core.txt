@@ -1,0 +1,18 @@
+# Core Data Engineering Tools
+pandas>=1.5.3
+numpy>=1.23.5
+sqlalchemy>=2.0.0
+pyarrow>=11.0.0  # For Parquet support
+
+# Core ML Libraries
+scikit-learn>=1.2.0
+
+# Visualization
+matplotlib>=3.7.0
+plotly>=5.13.0
+
+# Development Tools
+pytest>=7.3.0
+black>=23.1.0
+flake8>=6.0.0
+jupyter>=1.0.0
